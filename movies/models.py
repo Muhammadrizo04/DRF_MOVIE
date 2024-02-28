@@ -114,7 +114,7 @@ class Rating(models.Model):
         verbose_name_plural="Рейтинги"
 
 
-class Reviews(models.Model):
+class Review(models.Model):
     email = models.EmailField()
     name = models.CharField("Имя", max_length=100)
     text = models.TextField("Собщение", max_length=5000)
