@@ -9,14 +9,12 @@ from .serializers import MovieListSerializer, MovieDetailSerializer, ReviewCreat
 class MovieListView(APIView):
     """Вывод списка фильмов"""
     def get(self, request):
-        movie = Movie.objects.filter(draft=False).annotate(
-            rating_user=models.Case(
-                models.When(ratings__ip=get_client_ip(request), then=True),
-                    default=False,
-                    output_field=models.BooleanField()
-            ),
+        movies = Movie.objects.filter(draft=False).annotate(
+            rating_user=models.Count("ratings", filter=models.Q(ratings__ip=get_client_ip(request)))
+        ).annotate(
+            middle_star=models.Sum(models.F('ratings__star')) / models.Count(models.F('ratings'))
         )
-        serializer = MovieListSerializer(movie, many=True)
+        serializer = MovieListSerializer(movies, many=True)
         return Response(serializer.data)
 
 class MovieDetailView(APIView):
